@@ -48,49 +48,48 @@ import javax.inject.Inject
 
   val compositeDisposable = CompositeDisposable()
 
+  override fun create() {
+    val permissionDisposable = rxPermissions.request(Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_WIFI_STATE)
+        .subscribe {
+          view.reactOnPermissions(it)
+
+          if (!it) {
+            view.close()
+          } else {
+            locationManager.connect()
+          }
+        }
+
+    compositeDisposable.add(permissionDisposable)
+  }
+
   override fun resume() {
+
+    view.updateYourWifi(wifiManager.currentWifi?.ssid ?: "unknown")
 
     val locationsDisposable = locationManager.locations
         .observeOn(AndroidSchedulers.mainThread())
         .map { LatLng(it.latitude, it.longitude) }
-        .doOnNext { view.updateYourLocation(it) }
-        .subscribe()
+        .subscribe { view.updateYourLocation(it) }
 
     compositeDisposable.add(locationsDisposable)
 
     val locationClicksDisposable = view.locationClicks
-        .compose(rxPermissions.ensure(Manifest.permission.ACCESS_COARSE_LOCATION))
-        .subscribe {
-          granted ->
-          if (granted) {
-            locationManager.connect()
-            view.selectNewLocation()
-          } else {
-            view.reactOnPermissions(granted)
-          }
-        }
+        .subscribe { view.selectNewLocation() }
 
     compositeDisposable.add(locationClicksDisposable)
-
-    val wifiClicksDisposable = view.wifiTextChange
-        .compose(rxPermissions.ensure(Manifest.permission.ACCESS_WIFI_STATE))
-        .subscribe {
-          granted ->
-          if (granted) {
-            view.updateYourWifi(wifiManager.currentWifi?.ssid ?: "unknown")
-          } else {
-            view.reactOnPermissions(granted)
-          }
-        }
-
-    compositeDisposable.add(wifiClicksDisposable)
 
     val locationStatusObs: Observable<Boolean> = Observable.combineLatest(
         locationManager.locations,
         locationManager.selectedLocations,
         view.radiusChange, Function3 { yourLocation, selectedLocation, radius ->
-      yourLocation.distanceTo(
-          selectedLocation.location) < radius
+
+      val distanceTo = yourLocation.distanceTo(
+          selectedLocation.location)
+
+      view.updateDistanceBetween(distanceTo)
+      distanceTo < radius
     })
 
     val insideGeofenceObs: Observable<Boolean> = Observable.combineLatest(
@@ -110,8 +109,8 @@ import javax.inject.Inject
   override fun onNewLocationSelected(place: Place?) {
 
     place?.let {
-      locationManager.selectPlace(place)
-      view.updateSelectedLocation(place.latLng)
+      locationManager.selectPlace(it)
+      view.updateSelectedLocation(it.latLng)
     }
   }
 }

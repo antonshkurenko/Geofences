@@ -42,9 +42,13 @@ interface MainView {
 
   fun updateYourWifi(yourWifiName: String)
 
+  fun updateDistanceBetween(distance: Float)
+
   fun updateSelectedLocation(latlng: LatLng)
 
   fun selectNewLocation()
 
   fun reactOnPermissions(granted: Boolean)
+
+  fun close()
 }

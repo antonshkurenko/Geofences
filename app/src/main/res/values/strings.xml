@@ -17,13 +17,15 @@
 <resources>
   <string name="app_name">GeofencesTest</string>
   <string name="main_activity_geofence_status_text">Inside: %b</string>
-  <string name="main_activity_wifi_text_hint">WiFi Network</string>
-  <string name="main_activity_radius_text_hint">Radius</string>
-  <string name="main_activity_your_location_text">Your location: %s</string>
-  <string name="main_activity_your_wifi_text">Your wifi: %s</string>
-  <string name="main_activity_selected_location_text">Selected location: %s</string>
   <string name="main_activity_status_default">Status: unknown</string>
+  <string name="main_activity_radius_text_hint">Radius</string>
+  <string name="main_activity_wifi_text_hint">WiFi Network</string>
+  <string name="main_activity_your_location_text">Your location: %s</string>
   <string name="main_activity_your_location_default">Your location: unknown</string>
+  <string name="main_activity_your_wifi_text">Your wifi: %s</string>
   <string name="main_activity_your_wifi_default">Your wifi: unknown</string>
-  <string name="main_activity_selected_location_default">Selected location: unknown</string>
+  <string name="main_activity_selected_location_text">Selected location: %s (tap to change)</string>
+  <string name="main_activity_selected_location_default">Selected location: unknown (tap to change)</string>
+  <string name="main_activity_distance_between_text">Distance between: %f</string>
+  <string name="main_activity_distance_between_default">Distance between: unknown</string>
 </resources>

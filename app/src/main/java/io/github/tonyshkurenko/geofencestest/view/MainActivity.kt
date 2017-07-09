@@ -84,6 +84,7 @@ class MainActivity : AppCompatActivity(), MainView {
   internal lateinit var yourLocationTextView: TextView
   internal lateinit var yourWifiTextView: TextView
   internal lateinit var selectedLocationTextView: TextView
+  internal lateinit var distanceBetweenTextView: TextView
   internal lateinit var radiusEditText: EditText
   internal lateinit var wifiEditText: EditText
 
@@ -96,8 +97,11 @@ class MainActivity : AppCompatActivity(), MainView {
     yourLocationTextView = findViewById(R.id.your_location_text_view) as TextView
     yourWifiTextView = findViewById(R.id.your_wifi_text_view) as TextView
     selectedLocationTextView = findViewById(R.id.selected_location_text_view) as TextView
+    distanceBetweenTextView = findViewById(R.id.distance_between_text_view) as TextView
     radiusEditText = findViewById(R.id.radius_input_layout_edit_text) as EditText
     wifiEditText = findViewById(R.id.wifi_network_edit_text) as EditText
+
+    presenter.create()
   }
 
   override fun onResume() {
@@ -121,6 +125,10 @@ class MainActivity : AppCompatActivity(), MainView {
         latlng.toString())
   }
 
+  override fun updateDistanceBetween(distance: Float) {
+    distanceBetweenTextView.text = getString(R.string.main_activity_distance_between_text, distance)
+  }
+
   override fun updateYourWifi(yourWifiName: String) {
     yourWifiTextView.text = getString(R.string.main_activity_your_wifi_text, yourWifiName)
   }
@@ -136,6 +144,8 @@ class MainActivity : AppCompatActivity(), MainView {
 
   override fun reactOnPermissions(granted: Boolean) =
       Toast.makeText(this, "You granted permission: $granted", Toast.LENGTH_SHORT).show()
+
+  override fun close() = finish()
 
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     super.onActivityResult(requestCode, resultCode, data)

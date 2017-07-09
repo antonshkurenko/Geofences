@@ -28,6 +28,8 @@ import com.google.android.gms.location.places.Place
  */
 interface MainPresenter {
 
+  fun create()
+
   fun resume()
 
   fun pause()
