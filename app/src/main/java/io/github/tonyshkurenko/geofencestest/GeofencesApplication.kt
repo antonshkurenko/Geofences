@@ -21,7 +21,7 @@ import android.app.Application
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
-import io.github.tonyshkurenko.geofences.di.DaggerAppComponent
+import io.github.tonyshkurenko.geofencestest.di.DaggerAppComponent
 import timber.log.Timber
 import javax.inject.Inject
 

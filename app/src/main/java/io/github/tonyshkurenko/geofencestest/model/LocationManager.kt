@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package io.github.tonyshkurenko.geofencestest.di
+package io.github.tonyshkurenko.geofencestest.model
 
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-import io.github.tonyshkurenko.geofencestest.view.MainActivity
-import io.github.tonyshkurenko.geofencestest.view.MainModule
+import android.location.Location
+import io.reactivex.Observable
 
 /**
  * Project: GeofencesTest
@@ -29,13 +27,9 @@ import io.github.tonyshkurenko.geofencestest.view.MainModule
  * @author Anton Shkurenko
  * @since 7/9/17
  */
+interface LocationManager {
 
-@Module
-abstract class ActivityBuilder {
+  val locations: Observable<Location>
 
-  @ActivityScope @ContributesAndroidInjector(modules = arrayOf(
-      MainModule::class,
-      CommonActivityModule::class
-  ))
-  abstract fun mainActivity(): MainActivity
+  fun connect()
 }

@@ -16,10 +16,12 @@
 
 package io.github.tonyshkurenko.geofencestest.di
 
+import android.content.Context
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.location.LocationServices
 import dagger.Module
-import dagger.android.ContributesAndroidInjector
-import io.github.tonyshkurenko.geofencestest.view.MainActivity
-import io.github.tonyshkurenko.geofencestest.view.MainModule
+import dagger.Provides
+import javax.inject.Singleton
 
 /**
  * Project: GeofencesTest
@@ -31,11 +33,13 @@ import io.github.tonyshkurenko.geofencestest.view.MainModule
  */
 
 @Module
-abstract class ActivityBuilder {
+class LibraryDependenciesModule {
 
-  @ActivityScope @ContributesAndroidInjector(modules = arrayOf(
-      MainModule::class,
-      CommonActivityModule::class
-  ))
-  abstract fun mainActivity(): MainActivity
+  @Provides
+  @Singleton
+  fun googleClient(context: Context): GoogleApiClient {
+    return GoogleApiClient.Builder(context)
+        .addApi(LocationServices.API)
+        .build()
+  }
 }

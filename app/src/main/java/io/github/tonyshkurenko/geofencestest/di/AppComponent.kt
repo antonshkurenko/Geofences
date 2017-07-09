@@ -36,6 +36,7 @@ import javax.inject.Singleton
 @Component(modules = arrayOf(
     AndroidInjectionModule::class,
     AppModule::class,
+    LibraryDependenciesModule::class,
     ActivityBuilder::class
 ))
 interface AppComponent {

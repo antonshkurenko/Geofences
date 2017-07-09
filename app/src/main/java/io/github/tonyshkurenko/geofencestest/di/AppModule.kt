@@ -20,6 +20,10 @@ import android.app.Application
 import android.content.Context
 import dagger.Binds
 import dagger.Module
+import io.github.tonyshkurenko.geofencestest.model.LocationManager
+import io.github.tonyshkurenko.geofencestest.model.LocationManagerImpl
+import io.github.tonyshkurenko.geofencestest.model.WifiManager
+import io.github.tonyshkurenko.geofencestest.model.WifiManagerImpl
 import javax.inject.Singleton
 
 /**
@@ -37,4 +41,12 @@ abstract class AppModule {
   @Binds
   @Singleton
   abstract fun context(application: Application): Context
+
+  @Binds
+  @Singleton
+  abstract fun locationManager(locationManagerImpl: LocationManagerImpl): LocationManager
+
+  @Binds
+  @Singleton
+  abstract fun wifiManager(wifiManagerImpl: WifiManagerImpl): WifiManager
 }

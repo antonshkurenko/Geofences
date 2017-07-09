@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package io.github.tonyshkurenko.geofencestest.di
+package io.github.tonyshkurenko.geofencestest.model
 
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-import io.github.tonyshkurenko.geofencestest.view.MainActivity
-import io.github.tonyshkurenko.geofencestest.view.MainModule
+import android.content.Context
+import android.net.wifi.WifiInfo
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Project: GeofencesTest
@@ -29,13 +29,12 @@ import io.github.tonyshkurenko.geofencestest.view.MainModule
  * @author Anton Shkurenko
  * @since 7/9/17
  */
+@Singleton class WifiManagerImpl @Inject constructor(context: Context) : WifiManager {
 
-@Module
-abstract class ActivityBuilder {
+  override val currentWifi: WifiInfo
+    get() = wifiManager.connectionInfo
 
-  @ActivityScope @ContributesAndroidInjector(modules = arrayOf(
-      MainModule::class,
-      CommonActivityModule::class
-  ))
-  abstract fun mainActivity(): MainActivity
+  private val wifiManager by lazy {
+    context.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
+  }
 }

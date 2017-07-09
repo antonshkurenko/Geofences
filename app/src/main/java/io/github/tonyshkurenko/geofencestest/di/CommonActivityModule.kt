@@ -16,10 +16,10 @@
 
 package io.github.tonyshkurenko.geofencestest.di
 
+import android.app.Activity
+import com.tbruyelle.rxpermissions2.RxPermissions
 import dagger.Module
-import dagger.android.ContributesAndroidInjector
-import io.github.tonyshkurenko.geofencestest.view.MainActivity
-import io.github.tonyshkurenko.geofencestest.view.MainModule
+import dagger.Provides
 
 /**
  * Project: GeofencesTest
@@ -31,11 +31,11 @@ import io.github.tonyshkurenko.geofencestest.view.MainModule
  */
 
 @Module
-abstract class ActivityBuilder {
+class CommonActivityModule {
 
-  @ActivityScope @ContributesAndroidInjector(modules = arrayOf(
-      MainModule::class,
-      CommonActivityModule::class
-  ))
-  abstract fun mainActivity(): MainActivity
+  @Provides
+  @ActivityScope
+  fun rxPermissions(activity: Activity): RxPermissions {
+    return RxPermissions(activity)
+  }
 }

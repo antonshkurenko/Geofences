@@ -18,12 +18,31 @@ package io.github.tonyshkurenko.geofencestest.view
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import dagger.android.AndroidInjection
 import io.github.tonyshkurenko.geofencestest.R
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), MainView {
 
+  @Inject
+  lateinit var presenter: MainPresenter
+
   override fun onCreate(savedInstanceState: Bundle?) {
+    AndroidInjection.inject(this)
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
   }
+
+  override fun onResume() {
+    super.onResume()
+
+    presenter.resume()
+  }
+
+  override fun onPause() {
+    super.onPause()
+
+    presenter.pause()
+  }
+
 }
