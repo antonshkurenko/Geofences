@@ -16,12 +16,14 @@
 
 package io.github.tonyshkurenko.geofencestest.model
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.wifi.WifiInfo
+import io.reactivex.Observable
 import javax.inject.Inject
 import javax.inject.Singleton
-import android.net.NetworkInfo.DetailedState
-
 
 
 /**
@@ -32,22 +34,27 @@ import android.net.NetworkInfo.DetailedState
  * @author Anton Shkurenko
  * @since 7/9/17
  */
-@Singleton class WifiManagerImpl @Inject constructor(context: Context) : WifiManager {
+@Singleton class WifiManagerImpl @Inject constructor(val context: Context) : WifiManager {
 
-  override val currentWifi: WifiInfo?
+  override val wifi: Observable<WifiInfo>
     get() {
+      return Observable.create<WifiInfo> {
+        emitter ->
 
-      val wifiInfo = wifiManager.connectionInfo
-      if (wifiInfo != null) {
-        val state = WifiInfo.getDetailedStateOf(wifiInfo.supplicantState)
-        if (state == DetailedState.CONNECTED || state == DetailedState.OBTAINING_IPADDR) {
-          return wifiInfo
+        val receiver = object : BroadcastReceiver() {
+          override fun onReceive(context: Context?, intent: Intent?) {
+            emitter.onNext(wifiManager.connectionInfo)
+          }
         }
-      }
-      return null
+
+        context.registerReceiver(receiver, IntentFilter("android.net.wifi.STATE_CHANGE"))
+
+        emitter.setCancellable { context.unregisterReceiver(receiver) }
+      }.startWith(wifiManager.connectionInfo)
     }
 
   private val wifiManager by lazy {
     context.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager
   }
+
 }

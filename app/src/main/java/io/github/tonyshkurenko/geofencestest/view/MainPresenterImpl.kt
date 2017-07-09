@@ -28,7 +28,6 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
-import io.reactivex.functions.Function3
 import javax.inject.Inject
 
 /**
@@ -49,8 +48,10 @@ import javax.inject.Inject
   val compositeDisposable = CompositeDisposable()
 
   override fun create() {
-    val permissionDisposable = rxPermissions.request(Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_WIFI_STATE)
+    val permissionDisposable = rxPermissions.request(
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_WIFI_STATE,
+        Manifest.permission.ACCESS_NETWORK_STATE)
         .subscribe {
           view.reactOnPermissions(it)
 
@@ -66,7 +67,10 @@ import javax.inject.Inject
 
   override fun resume() {
 
-    view.updateYourWifi(wifiManager.currentWifi?.ssid ?: "unknown")
+    val wifiDisposable = wifiManager.wifi
+        .subscribe { view.updateYourWifi(it.ssid) }
+
+    compositeDisposable.add(wifiDisposable)
 
     val locationsDisposable = locationManager.locations
         .observeOn(AndroidSchedulers.mainThread())
@@ -80,23 +84,34 @@ import javax.inject.Inject
 
     compositeDisposable.add(locationClicksDisposable)
 
-    val locationStatusObs: Observable<Boolean> = Observable.combineLatest(
+    val locationDistanceObs: Observable<Float> = Observable.combineLatest(
         locationManager.locations,
         locationManager.selectedLocations,
-        view.radiusChange, Function3 { yourLocation, selectedLocation, radius ->
+        BiFunction { yourLocation, selectedLocation ->
+          yourLocation.distanceTo(
+              selectedLocation.location)
+        }
+    )
 
-      val distanceTo = yourLocation.distanceTo(
-          selectedLocation.location)
-
-      view.updateDistanceBetween(distanceTo)
-      distanceTo < radius
+    val locationStatusObs: Observable<Boolean> = Observable.combineLatest(
+        locationDistanceObs.doOnNext { view.updateDistanceBetween(it) },
+        view.radiusChange, BiFunction { distance, radius ->
+      distance < radius
     })
+
+    val wifiStatusObs: Observable<Boolean> = Observable.combineLatest(
+        wifiManager.wifi,
+        view.wifiTextChange,
+        BiFunction { wifi, wifiText ->
+          wifiText.isNotEmpty() &&
+              wifi.ssid.toLowerCase().contains(wifiText.toLowerCase())
+        }
+    )
 
     val insideGeofenceObs: Observable<Boolean> = Observable.combineLatest(
         locationStatusObs.startWith(false),
-        view.wifiTextChange.map {
-          wifiManager.currentWifi?.ssid?.toLowerCase()?.contains(it.toLowerCase()) == true
-        }.startWith(false), BiFunction { location, wifi -> location || wifi })
+        wifiStatusObs.startWith(false),
+        BiFunction { location, wifi -> location || wifi })
 
     val insideGeofenceDisposable = insideGeofenceObs
         .subscribe { view.updateGeofenceStatus(it) }

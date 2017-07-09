@@ -17,6 +17,7 @@
 package io.github.tonyshkurenko.geofencestest.model
 
 import android.net.wifi.WifiInfo
+import io.reactivex.Observable
 
 /**
  * Project: GeofencesTest
@@ -28,5 +29,5 @@ import android.net.wifi.WifiInfo
  */
 interface WifiManager {
 
-  val currentWifi: WifiInfo?
+  val wifi: Observable<WifiInfo>
 }
