@@ -17,7 +17,6 @@
 package io.github.tonyshkurenko.geofencestest.view
 
 import android.Manifest
-import android.location.Location
 import com.google.android.gms.location.places.Place
 import com.google.android.gms.maps.model.LatLng
 import com.tbruyelle.rxpermissions2.RxPermissions
@@ -28,7 +27,8 @@ import io.github.tonyshkurenko.geofencestest.util.location
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Function4
+import io.reactivex.functions.BiFunction
+import io.reactivex.functions.Function3
 import javax.inject.Inject
 
 /**
@@ -65,8 +65,9 @@ import javax.inject.Inject
           if (granted) {
             locationManager.connect()
             view.selectNewLocation()
+          } else {
+            view.reactOnPermissions(granted)
           }
-          view.reactOnPermissions(granted)
         }
 
     compositeDisposable.add(locationClicksDisposable)
@@ -77,20 +78,31 @@ import javax.inject.Inject
           granted ->
           if (granted) {
             view.updateYourWifi(wifiManager.currentWifi?.ssid ?: "unknown")
+          } else {
+            view.reactOnPermissions(granted)
           }
-          view.reactOnPermissions(granted)
         }
 
     compositeDisposable.add(wifiClicksDisposable)
 
-    val statusObs: Observable<Boolean> = Observable.combineLatest(view.radiusChange,
+    val locationStatusObs: Observable<Boolean> = Observable.combineLatest(
         locationManager.locations,
         locationManager.selectedLocations,
-        view.wifiTextChange, Function4 { radius, location, selectedLatLng, wifiName ->
-      isInsideGeofence(radius, location, selectedLatLng, wifiName)
+        view.radiusChange, Function3 { yourLocation, selectedLocation, radius ->
+      yourLocation.distanceTo(
+          selectedLocation.location) < radius
     })
 
-    compositeDisposable.add(statusObs.subscribe())
+    val insideGeofenceObs: Observable<Boolean> = Observable.combineLatest(
+        locationStatusObs.startWith(false),
+        view.wifiTextChange.map {
+          wifiManager.currentWifi?.ssid?.toLowerCase()?.contains(it.toLowerCase()) == true
+        }.startWith(false), BiFunction { location, wifi -> location || wifi })
+
+    val insideGeofenceDisposable = insideGeofenceObs
+        .subscribe { view.updateGeofenceStatus(it) }
+
+    compositeDisposable.add(insideGeofenceDisposable)
   }
 
   override fun pause() = compositeDisposable.clear()
@@ -102,9 +114,4 @@ import javax.inject.Inject
       view.updateSelectedLocation(place.latLng)
     }
   }
-
-  private fun isInsideGeofence(radius: Int, yourLocation: Location, selectedLatLng: LatLng,
-      wifiName: String): Boolean = yourLocation.distanceTo(
-      selectedLatLng.location) < radius ||
-      wifiManager.currentWifi?.ssid?.contains(wifiName) == true
 }

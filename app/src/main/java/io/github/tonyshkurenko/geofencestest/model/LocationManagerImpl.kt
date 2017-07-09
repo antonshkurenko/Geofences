@@ -24,6 +24,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.places.Place
 import com.google.android.gms.maps.model.LatLng
+import io.github.tonyshkurenko.geofencestest.util.location
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import timber.log.Timber
@@ -47,9 +48,8 @@ import javax.inject.Singleton
   private val locationSubject: BehaviorSubject<Location> = BehaviorSubject.create()
   override val locations: Observable<Location> = locationSubject.hide()
 
-  private val selectedLocationSubject: BehaviorSubject<Place> = BehaviorSubject.create()
+  private val selectedLocationSubject: BehaviorSubject<LatLng> = BehaviorSubject.create()
   override val selectedLocations: Observable<LatLng> = selectedLocationSubject
-      .map { it.latLng }
       .hide()
 
   override fun connect() {
@@ -59,7 +59,7 @@ import javax.inject.Singleton
     googleApiClient.connect()
   }
 
-  override fun selectPlace(place: Place) = selectedLocationSubject.onNext(place)
+  override fun selectPlace(place: Place) = selectedLocationSubject.onNext(place.latLng)
 
   override fun onConnected(p0: Bundle?) {
     Timber.d("onConnected() called with: $p0")
