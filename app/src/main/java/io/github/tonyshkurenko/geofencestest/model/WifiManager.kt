@@ -28,5 +28,5 @@ import android.net.wifi.WifiInfo
  */
 interface WifiManager {
 
-  val currentWifi: WifiInfo
+  val currentWifi: WifiInfo?
 }

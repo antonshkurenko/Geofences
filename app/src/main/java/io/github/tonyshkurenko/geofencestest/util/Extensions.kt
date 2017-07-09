@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package io.github.tonyshkurenko.geofencestest.model
+package io.github.tonyshkurenko.geofencestest.util
 
 import android.location.Location
-import com.google.android.gms.location.places.Place
 import com.google.android.gms.maps.model.LatLng
-import io.reactivex.Observable
 
 /**
  * Project: GeofencesTest
@@ -29,13 +27,11 @@ import io.reactivex.Observable
  * @author Anton Shkurenko
  * @since 7/9/17
  */
-interface LocationManager {
 
-  val locations: Observable<Location>
-
-  val selectedLocations: Observable<LatLng>
-
-  fun connect()
-
-  fun selectPlace(place: Place)
-}
+val LatLng.location: Location
+  get() {
+    val location = Location("fromLatLng")
+    location.latitude = this.latitude
+    location.longitude = this.longitude
+    return location
+  }

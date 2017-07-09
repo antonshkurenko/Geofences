@@ -16,6 +16,10 @@
 
 package io.github.tonyshkurenko.geofencestest.view
 
+import android.view.View
+import com.google.android.gms.maps.model.LatLng
+import io.reactivex.Observable
+
 /**
  * Project: GeofencesTest
  * Code style: SquareAndroid (https://github.com/square/java-code-styles)
@@ -26,4 +30,21 @@ package io.github.tonyshkurenko.geofencestest.view
  */
 interface MainView {
 
+  val locationClicks: Observable<View>
+
+  val wifiTextChange: Observable<String>
+
+  val radiusChange: Observable<Int>
+
+  fun updateGeofenceStatus(inside: Boolean)
+
+  fun updateYourLocation(latlng: LatLng?)
+
+  fun updateYourWifi(yourWifiName: String)
+
+  fun updateSelectedLocation(latlng: LatLng)
+
+  fun selectNewLocation()
+
+  fun reactOnPermissions(granted: Boolean)
 }

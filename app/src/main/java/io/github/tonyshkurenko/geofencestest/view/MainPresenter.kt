@@ -16,6 +16,8 @@
 
 package io.github.tonyshkurenko.geofencestest.view
 
+import com.google.android.gms.location.places.Place
+
 /**
  * Project: GeofencesTest
  * Code style: SquareAndroid (https://github.com/square/java-code-styles)
@@ -29,4 +31,6 @@ interface MainPresenter {
   fun resume()
 
   fun pause()
+
+  fun onNewLocationSelected(place: Place?)
 }

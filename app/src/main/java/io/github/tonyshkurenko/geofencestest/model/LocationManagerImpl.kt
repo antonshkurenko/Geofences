@@ -22,6 +22,8 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.places.Place
+import com.google.android.gms.maps.model.LatLng
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import timber.log.Timber
@@ -45,12 +47,19 @@ import javax.inject.Singleton
   private val locationSubject: BehaviorSubject<Location> = BehaviorSubject.create()
   override val locations: Observable<Location> = locationSubject.hide()
 
+  private val selectedLocationSubject: BehaviorSubject<Place> = BehaviorSubject.create()
+  override val selectedLocations: Observable<LatLng> = selectedLocationSubject
+      .map { it.latLng }
+      .hide()
+
   override fun connect() {
     googleApiClient.registerConnectionCallbacks(this)
     googleApiClient.registerConnectionFailedListener { Timber.w("onConnectionFailed: $it") }
 
     googleApiClient.connect()
   }
+
+  override fun selectPlace(place: Place) = selectedLocationSubject.onNext(place)
 
   override fun onConnected(p0: Bundle?) {
     Timber.d("onConnected() called with: $p0")
@@ -67,7 +76,7 @@ import javax.inject.Singleton
             locationRequest) { locationSubject.onNext(it) }
   }
 
-  override fun onConnectionSuspended(cause: Int) {
-    Timber.d("onConnectionSuspended() called with: $cause")
-  }
+  override fun onConnectionSuspended(cause: Int) = Timber.d(
+      "onConnectionSuspended() called with: $cause")
+
 }

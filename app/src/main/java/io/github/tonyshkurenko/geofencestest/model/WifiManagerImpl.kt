@@ -20,6 +20,9 @@ import android.content.Context
 import android.net.wifi.WifiInfo
 import javax.inject.Inject
 import javax.inject.Singleton
+import android.net.NetworkInfo.DetailedState
+
+
 
 /**
  * Project: GeofencesTest
@@ -31,8 +34,18 @@ import javax.inject.Singleton
  */
 @Singleton class WifiManagerImpl @Inject constructor(context: Context) : WifiManager {
 
-  override val currentWifi: WifiInfo
-    get() = wifiManager.connectionInfo
+  override val currentWifi: WifiInfo?
+    get() {
+
+      val wifiInfo = wifiManager.connectionInfo
+      if (wifiInfo != null) {
+        val state = WifiInfo.getDetailedStateOf(wifiInfo.supplicantState)
+        if (state == DetailedState.CONNECTED || state == DetailedState.OBTAINING_IPADDR) {
+          return wifiInfo
+        }
+      }
+      return null
+    }
 
   private val wifiManager by lazy {
     context.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager

@@ -16,21 +16,88 @@ package io.github.tonyshkurenko.geofencestest.view
  * limitations under the License.
  */
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.View
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
+import com.google.android.gms.location.places.ui.PlacePicker
+import com.google.android.gms.maps.model.LatLng
 import dagger.android.AndroidInjection
 import io.github.tonyshkurenko.geofencestest.R
+import io.reactivex.Observable
+import timber.log.Timber
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), MainView {
 
+  companion object {
+    const val REQUEST_LOCATION = 1
+  }
+
   @Inject
   lateinit var presenter: MainPresenter
+
+  override val locationClicks: Observable<View>
+    get() = Observable.create { emitter ->
+      selectedLocationTextView.setOnClickListener { emitter.onNext(it) }
+    }
+
+  override val wifiTextChange: Observable<String>
+    get() = Observable.create { emitter ->
+      wifiEditText.addTextChangedListener(object : TextWatcher {
+        override fun afterTextChanged(s: Editable?) {}
+
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+          if (s == null) return // should never happen
+          emitter.onNext(s.toString())
+        }
+      })
+    }
+
+  override val radiusChange: Observable<Int>
+    get() = Observable.create { emitter ->
+      radiusEditText.addTextChangedListener(object : TextWatcher {
+        override fun afterTextChanged(s: Editable?) {}
+
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+          if (s == null) return // should never happen
+          try {
+            emitter.onNext(s.toString().toInt())
+          } catch (e: NumberFormatException) {
+            emitter.onNext(0)
+          }
+        }
+      })
+    }
+
+  internal lateinit var statusTextView: TextView
+  internal lateinit var yourLocationTextView: TextView
+  internal lateinit var yourWifiTextView: TextView
+  internal lateinit var selectedLocationTextView: TextView
+  internal lateinit var radiusEditText: EditText
+  internal lateinit var wifiEditText: EditText
 
   override fun onCreate(savedInstanceState: Bundle?) {
     AndroidInjection.inject(this)
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
+
+    statusTextView = findViewById(R.id.status_text_view) as TextView
+    yourLocationTextView = findViewById(R.id.your_location_text_view) as TextView
+    yourWifiTextView = findViewById(R.id.your_wifi_text_view) as TextView
+    selectedLocationTextView = findViewById(R.id.selected_location_text_view) as TextView
+    radiusEditText = findViewById(R.id.radius_input_layout_edit_text) as EditText
+    wifiEditText = findViewById(R.id.wifi_network_edit_text) as EditText
   }
 
   override fun onResume() {
@@ -45,4 +112,41 @@ class MainActivity : AppCompatActivity(), MainView {
     presenter.pause()
   }
 
+  override fun updateGeofenceStatus(inside: Boolean) {
+    statusTextView.text = getString(R.string.main_activity_geofence_status_text, inside)
+  }
+
+  override fun updateYourLocation(latlng: LatLng?) {
+    yourLocationTextView.text = getString(R.string.main_activity_your_location_text,
+        latlng.toString())
+  }
+
+  override fun updateYourWifi(yourWifiName: String) {
+    yourWifiTextView.text = getString(R.string.main_activity_your_wifi_text, yourWifiName)
+  }
+
+  override fun updateSelectedLocation(latlng: LatLng) {
+    selectedLocationTextView.text = getString(R.string.main_activity_selected_location_text,
+        latlng.toString())
+  }
+
+  override fun selectNewLocation() =
+      startActivityForResult(PlacePicker.IntentBuilder().build(this),
+          REQUEST_LOCATION)
+
+  override fun reactOnPermissions(granted: Boolean) =
+      Toast.makeText(this, "You granted permission: $granted", Toast.LENGTH_SHORT).show()
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+
+    if (resultCode != Activity.RESULT_OK) {
+      Timber.d("Result isn't ok, canceling")
+      return
+    }
+
+    when (requestCode) {
+      REQUEST_LOCATION -> presenter.onNewLocationSelected(PlacePicker.getPlace(this, data))
+    }
+  }
 }

@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package io.github.tonyshkurenko.geofencestest.model
+package io.github.tonyshkurenko.geofencestest.testutils
 
-import android.location.Location
-import com.google.android.gms.location.places.Place
-import com.google.android.gms.maps.model.LatLng
-import io.reactivex.Observable
+import android.app.Application
+import dagger.BindsInstance
+import dagger.Component
+import dagger.android.AndroidInjectionModule
+import io.github.tonyshkurenko.geofencestest.di.ActivityBuilder
+import io.github.tonyshkurenko.geofencestest.di.AppComponent
+import io.github.tonyshkurenko.geofencestest.di.LibraryDependenciesModule
+import javax.inject.Singleton
+
 
 /**
  * Project: GeofencesTest
@@ -29,13 +34,19 @@ import io.reactivex.Observable
  * @author Anton Shkurenko
  * @since 7/9/17
  */
-interface LocationManager {
+@Singleton @Component(modules = arrayOf(
+    AndroidInjectionModule::class,
+    AppModuleTest::class,
+    LibraryDependenciesModule::class,
+    ActivityBuilder::class
+))
+interface AppComponentTest : AppComponent {
 
-  val locations: Observable<Location>
+  @Component.Builder
+  interface Builder {
 
-  val selectedLocations: Observable<LatLng>
+    @BindsInstance fun application(application: Application): Builder
 
-  fun connect()
-
-  fun selectPlace(place: Place)
+    fun build(): AppComponentTest
+  }
 }
