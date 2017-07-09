@@ -1,5 +1,3 @@
-package io.github.tonyshkurenko.geofencestest;
-
 /*
  * Copyright 2017 Anton Shkurenko
  *
@@ -16,13 +14,19 @@ package io.github.tonyshkurenko.geofencestest;
  * limitations under the License.
  */
 
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+package io.github.tonyshkurenko.geofencestest.view
 
-public class MainActivity extends AppCompatActivity {
+/**
+ * Project: GeofencesTest
+ * Code style: SquareAndroid (https://github.com/square/java-code-styles)
+ * Follow me: @tonyshkurenko
+ *
+ * @author Anton Shkurenko
+ * @since 7/9/17
+ */
+interface MainPresenter {
 
-  @Override protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
-  }
+  fun resume()
+
+  fun pause()
 }
