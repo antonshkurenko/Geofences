@@ -80,6 +80,7 @@ class MainActivity : AppCompatActivity(), MainView {
       })
     }
 
+  //region Views
   internal lateinit var statusTextView: TextView
   internal lateinit var yourLocationTextView: TextView
   internal lateinit var yourWifiTextView: TextView
@@ -87,7 +88,9 @@ class MainActivity : AppCompatActivity(), MainView {
   internal lateinit var distanceBetweenTextView: TextView
   internal lateinit var radiusEditText: EditText
   internal lateinit var wifiEditText: EditText
+  //endregion
 
+  //region Extends Activity
   override fun onCreate(savedInstanceState: Bundle?) {
     AndroidInjection.inject(this)
     super.onCreate(savedInstanceState)
@@ -116,6 +119,21 @@ class MainActivity : AppCompatActivity(), MainView {
     presenter.pause()
   }
 
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+
+    if (resultCode != Activity.RESULT_OK) {
+      Timber.d("Result isn't ok, canceling")
+      return
+    }
+
+    when (requestCode) {
+      REQUEST_LOCATION -> presenter.onNewLocationSelected(PlacePicker.getPlace(this, data))
+    }
+  }
+  //endregion
+
+  //region Implements MainView
   override fun updateGeofenceStatus(inside: Boolean) {
     statusTextView.text = getString(R.string.main_activity_geofence_status_text, inside)
   }
@@ -146,17 +164,5 @@ class MainActivity : AppCompatActivity(), MainView {
       Toast.makeText(this, "You granted permission: $granted", Toast.LENGTH_SHORT).show()
 
   override fun close() = finish()
-
-  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    super.onActivityResult(requestCode, resultCode, data)
-
-    if (resultCode != Activity.RESULT_OK) {
-      Timber.d("Result isn't ok, canceling")
-      return
-    }
-
-    when (requestCode) {
-      REQUEST_LOCATION -> presenter.onNewLocationSelected(PlacePicker.getPlace(this, data))
-    }
-  }
+  //endregion
 }

@@ -24,7 +24,6 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.places.Place
 import com.google.android.gms.maps.model.LatLng
-import io.github.tonyshkurenko.geofencestest.util.location
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import timber.log.Timber
@@ -63,6 +62,10 @@ import javax.inject.Singleton
 
   override fun onConnected(p0: Bundle?) {
     Timber.d("onConnected() called with: $p0")
+
+    LocationServices.FusedLocationApi.getLastLocation(googleApiClient)?.let {
+      locationSubject.onNext(it)
+    }
 
     val locationRequest = LocationRequest()
         .setInterval(TimeUnit.MINUTES.toMillis(30))

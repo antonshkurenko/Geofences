@@ -47,7 +47,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MainActivityTest {
 
-  @get:Rule public val activityTestRule = ActivityTestRule<MainActivity>(
+  @get:Rule val activityTestRule = ActivityTestRule<MainActivity>(
       MainActivity::class.java, false, false)
 
   private val app = InstrumentationRegistry.getTargetContext().applicationContext as
@@ -72,10 +72,8 @@ class MainActivityTest {
         .test()
 
     onView(withId(R.id.your_location_text_view)).perform(click())
-    onView(withId(R.id.your_location_text_view)).perform(click())
-    onView(withId(R.id.your_location_text_view)).perform(click())
 
-    testObs.awaitCount(3)
+    testObs.awaitCount(1)
     testObs.assertNotComplete()
     testObs.assertNoErrors()
   }

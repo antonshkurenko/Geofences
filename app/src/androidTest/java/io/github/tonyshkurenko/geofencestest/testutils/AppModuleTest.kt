@@ -70,13 +70,11 @@ import javax.inject.Singleton
       // nothing to do
     }
 
-    override val locations: Observable<Location>
-      get() = Observable.fromArray(Location("fake"), Location("fake"), Location("fake"))
-
+    override val locations: Observable<Location> = Observable.fromArray(Location("fake"),
+        Location("fake"), Location("fake"))
   }
 
   class StubWifiManager : WifiManager {
-    override val currentWifi: WifiInfo?
-      get() = null
+    override val wifi: Observable<WifiInfo> = Observable.never()
   }
 }
