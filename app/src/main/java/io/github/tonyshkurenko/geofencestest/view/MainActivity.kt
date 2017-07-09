@@ -43,14 +43,16 @@ class MainActivity : AppCompatActivity(), MainView {
   @Inject
   lateinit var presenter: MainPresenter
 
-  override val locationClicks: Observable<View>
-    get() = Observable.create { emitter ->
+  override val locationClicks: Observable<View> by lazy {
+    Observable.create<View> { emitter ->
       selectedLocationTextView.setOnClickListener { emitter.onNext(it) }
-    }
+    }.share()
+  }
 
-  override val wifiTextChange: Observable<String>
-    get() = Observable.create { emitter ->
-      wifiEditText.addTextChangedListener(object : TextWatcher {
+  override val wifiTextChange: Observable<String> by lazy {
+    Observable.create<String> { emitter ->
+
+      val watcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {}
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -59,12 +61,21 @@ class MainActivity : AppCompatActivity(), MainView {
           if (s == null) return // should never happen
           emitter.onNext(s.toString())
         }
-      })
-    }
+      }
 
-  override val radiusChange: Observable<Int>
-    get() = Observable.create { emitter ->
-      radiusEditText.addTextChangedListener(object : TextWatcher {
+      wifiEditText.addTextChangedListener(watcher)
+
+      emitter.setCancellable {
+        wifiEditText.removeTextChangedListener(watcher)
+      }
+    }.share()
+  }
+
+
+  override val radiusChange: Observable<Int> by lazy {
+    Observable.create<Int> { emitter ->
+
+      val watcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {}
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -77,8 +88,15 @@ class MainActivity : AppCompatActivity(), MainView {
             emitter.onNext(0)
           }
         }
-      })
-    }
+      }
+
+      radiusEditText.addTextChangedListener(watcher)
+
+      emitter.setCancellable {
+        radiusEditText.removeTextChangedListener(watcher)
+      }
+    }.share()
+  }
 
   //region Views
   internal lateinit var statusTextView: TextView
