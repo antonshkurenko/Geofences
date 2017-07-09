@@ -15,14 +15,16 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
-  compileSdkVersion 26
-  buildToolsVersion "26.0.0"
+  compileSdkVersion 25
+  buildToolsVersion "25.0.3"
   defaultConfig {
     applicationId "io.github.tonyshkurenko.geofencestest"
     minSdkVersion 15
-    targetSdkVersion 26
+    targetSdkVersion 25
     versionCode 1
     versionName "1.0"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -36,11 +38,62 @@ android {
 }
 
 dependencies {
-  compile fileTree(dir: 'libs', include: ['*.jar'])
-  androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+
+  // kotlin
+  compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVer"
+
+  // android
+  def supportVer = "25.3.1"
+  compile "com.android.support:appcompat-v7:$supportVer"
+  compile "com.android.support:design:$supportVer"
+  compile "com.android.support:recyclerview-v7:$supportVer"
+
+  def constraintLayoutVer = "1.0.2"
+  compile "com.android.support.constraint:constraint-layout:$constraintLayoutVer"
+
+  // play services
+  def playServicesVer = "11.0.2"
+  compile "com.google.android.gms:play-services-location:$playServicesVer"
+  compile "com.google.android.gms:play-services-places:$playServicesVer"
+
+  // dagger 2
+  def daggerVer = "2.11"
+  compile "com.google.dagger:dagger:$daggerVer"
+  //compile "com.google.dagger:dagger-android:$daggerVer"
+  compile "com.google.dagger:dagger-android-support:$daggerVer"
+  kapt "com.google.dagger:dagger-compiler:$daggerVer"
+  kapt "com.google.dagger:dagger-android-processor:$daggerVer"
+
+  // rxjava
+  def rxJavaVer = "2.1.1"
+  compile "io.reactivex.rxjava2:rxjava:$rxJavaVer"
+  def rxAndroidVer = "2.0.1"
+  compile "io.reactivex.rxjava2:rxandroid:$rxAndroidVer"
+
+  // utils
+  def timberVer = "4.5.1"
+  compile "com.jakewharton.timber:timber:$timberVer"
+
+  def rxPermissionsVer = "0.9.4"
+  compile "com.tbruyelle.rxpermissions2:rxpermissions:$rxPermissionsVer@aar"
+
+  // tests
+  def junitVer = "4.12"
+  testCompile "junit:junit:$junitVer"
+
+  // android tests
+  def espressoVer = "2.2.2"
+  androidTestCompile("com.android.support.test.espresso:espresso-core:$espressoVer", {
     exclude group: 'com.android.support', module: 'support-annotations'
   })
-  compile 'com.android.support:appcompat-v7:26.+'
-  compile 'com.android.support.constraint:constraint-layout:1.0.2'
-  testCompile 'junit:junit:4.12'
+
+  def findbugsVer = "3.0.1"
+  androidTestCompile "com.google.code.findbugs:jsr305:$findbugsVer"
+
+  kaptAndroidTest "com.google.dagger:dagger-compiler:$daggerVer"
+  kaptAndroidTest "com.google.dagger:dagger-android-processor:$daggerVer"
+}
+
+repositories {
+  mavenCentral()
 }
