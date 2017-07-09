@@ -17,6 +17,7 @@
 package io.github.tonyshkurenko.geofencestest.util
 
 import android.location.Location
+import android.net.wifi.WifiInfo
 import com.google.android.gms.maps.model.LatLng
 
 /**
@@ -34,4 +35,9 @@ val LatLng.location: Location
     location.latitude = this.latitude
     location.longitude = this.longitude
     return location
+  }
+
+val WifiInfo.valid: Boolean
+  get() {
+    return this.networkId > 0
   }

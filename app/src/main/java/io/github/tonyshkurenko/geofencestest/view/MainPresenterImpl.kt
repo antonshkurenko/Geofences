@@ -24,6 +24,7 @@ import io.github.tonyshkurenko.geofencestest.di.ActivityScope
 import io.github.tonyshkurenko.geofencestest.model.LocationManager
 import io.github.tonyshkurenko.geofencestest.model.WifiManager
 import io.github.tonyshkurenko.geofencestest.util.location
+import io.github.tonyshkurenko.geofencestest.util.valid
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -103,7 +104,7 @@ import javax.inject.Inject
         wifiManager.wifi,
         view.wifiTextChange,
         BiFunction { wifi, wifiText ->
-          wifiText.isNotEmpty() &&
+          wifiText.isNotEmpty() && wifi.valid &&
               wifi.ssid.toLowerCase().contains(wifiText.toLowerCase())
         }
     )
